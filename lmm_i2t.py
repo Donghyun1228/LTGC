@@ -3,7 +3,7 @@ import torch
 from lt_dataloaders import ImageNetLTDataLoader
 from data_txt.imagenet_label_mapping import get_readable_name
 from gpt4v import gpt4v_observe
-from llama import llama_observe
+from llava import llava_observe
 from ultis import sample_counter
 import os
 import json
@@ -56,7 +56,7 @@ for epoch, pack in enumerate(imagenet_loader):
 
         # img_description = gpt4v_observe(data, text_prompt)['choices'][0]['message']['content']
         # img_description = gpt4v_observe(data, text_prompt)
-        img_description = llama_observe(data, text_prompt)
+        img_description = llava_observe(data, text_prompt)
 
         # print(img_description)
         
