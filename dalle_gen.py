@@ -1,8 +1,13 @@
-from openai import OpenAI
-import requests
+# from openai import OpenAI
+# import requests
+from diffusers import AutoPipelineForText2Image
+import torch
 
 
-client = OpenAI(api_key='Replace with your own OPENAI KEY.')
+# client = OpenAI(api_key='Replace with your own OPENAI KEY.')
+
+pipeline = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16")
+pipeline = pipeline.to("cuda")
 
 def dalle_gen(client, saved_path, input_text, saved=False):
     try:
@@ -10,27 +15,34 @@ def dalle_gen(client, saved_path, input_text, saved=False):
         if len(input_text) > 1000:
             input_text = input_text[:1000]
 
-        response = client.images.generate(
-        model="dall-e-2",
-        prompt=input_text,
-        size="1024x1024",
-        quality="standard",
-        n=1,
-        )
+        
+        # response = client.images.generate(
+        # model="dall-e-2",
+        # prompt=input_text,
+        # size="1024x1024",
+        # quality="standard",
+        # n=1,
+        # )
 
-        image_url = response.data[0].url
-        response = requests.get(image_url)
+        # image_url = response.data[0].url
+        # response = requests.get(image_url)
 
-        if response.status_code == 200:
-            if saved:
-                with open(saved_path, 'wb') as f:
-                    f.write(response.content)
+        # if response.status_code == 200:
+        #     if saved:
+        #         with open(saved_path, 'wb') as f:
+        #             f.write(response.content)
 
+        #     print(f"Saved to {saved_path}")
+        #     return saved_path
+        # else:
+        #     print("Fail...")
+
+        image = pipeline(prompt=input_text, guidance_scale=1.0, num_inference_steps=1).images[0]
+        if saved:
+            image.save(saved_path, format='jpeg')
             print(f"Saved to {saved_path}")
-            return saved_path
-        else:
-            print("Fail...")
-
+        return saved_path
+    
     except Exception as e:
 
         print(f"An error occurred: {e}")
